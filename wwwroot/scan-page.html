@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Scan for Stock In/Out</title>
+  <link rel="stylesheet" href="layui/css/layui.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .main-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .left-panel {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f2f2f2;
+    }
+
+    video#camera {
+      width: 80%;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+<div class="layui-header" style="background-color: #3A3F51; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+  <div class="layui-logo" style="padding-left: 20px; padding-top: 10px;">
+    <img src="images/shamrocklogo.png" alt="Inventory Logo" style="height: 40px;">
+  </div>
+  <ul class="layui-nav layui-layout-left" style="background-color: transparent;">
+    <li class="layui-nav-item"><a style="color: white;" href="scan-page.html">Scan</a></li>
+    <li class="layui-nav-item"><a style="color: white;" href="adjustment.html">Adjust</a></li>
+    <li class="layui-nav-item"><a style="color: white;" href="inventory.html">View Inventory</a></li>
+  </ul>
+</div>
+  <div class="main-container">
+    <!-- Left panel: LayUI form -->
+    <div class="left-panel">
+      <fieldset class="layui-elem-field layui-field-title">
+        <legend>Scan for Stock In / Out</legend>
+      </fieldset>
+
+      <form class="layui-form" id="scanForm">
+        <div class="layui-form-item">
+          <label class="layui-form-label">Scanned Code</label>
+          <div class="layui-input-block">
+            <input type="text" name="barcode" id="barcodeInput" required lay-verify="required"
+              placeholder="Scan or manually enter barcode" autocomplete="off" class="layui-input" readonly>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">Item Name</label>
+          <div class="layui-input-block">
+            <input type="text" id="productName" readonly placeholder="Will be shown after recognition"
+              class="layui-input">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">Operation</label>
+          <div class="layui-input-block">
+            <input type="radio" name="operation" value="in" title="Stock In" checked>
+            <input type="radio" name="operation" value="out" title="Stock Out">
+          </div>
+        </div>
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">Quantity</label>
+          <div class="layui-input-block">
+            <input type="number" name="quantity" required lay-verify="required" placeholder="Enter quantity"
+              class="layui-input" id="quantityInput">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">Quick Fill</label>
+          <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm" onclick="setQuantity(0.5)">0.5</button>
+            <button type="button" class="layui-btn layui-btn-sm" onclick="setQuantity(1)">1</button>
+            <button type="button" class="layui-btn layui-btn-sm" onclick="setQuantity(2)">2</button>
+            <button type="button" class="layui-btn layui-btn-sm" onclick="setQuantity(5)">5</button>
+            <button type="button" class="layui-btn layui-btn-sm" onclick="setQuantity(10)">10</button>
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="submit">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right panel: Camera preview -->
+    <div class="right-panel">
+      <video id="camera" autoplay playsinline></video>
+    </div>
+  </div>
+
+  <!-- LayUI + ZXing -->
+  <script src="layui/layui.js"></script>
+  <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+  <script src="js/scan-page.js"></script>
+  <script src="js/new-item.js"></script>
+
+</body>
+
+</html>

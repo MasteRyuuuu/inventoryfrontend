@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Overview</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .layui-table-cell {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="layui-header" style="background-color: #3A3F51; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <div class="layui-logo" style="padding-left: 20px; padding-top: 10px;">
+            <img src="images/shamrocklogo.png" alt="Inventory Logo" style="height: 40px;">
+        </div>
+        <ul class="layui-nav layui-layout-left" style="background-color: transparent;">
+            <li class="layui-nav-item"><a style="color: white;" href="scan-page.html">Scan</a></li>
+            <li class="layui-nav-item"><a style="color: white;" href="adjustment.html">Adjust</a></li>
+            <li class="layui-nav-item"><a style="color: white;" href="inventory.html">View Inventory</a></li>
+        </ul>
+    </div>
+
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>Inventory Overview</legend>
+    </fieldset>
+
+    <table class="layui-hide" id="inventoryTable" lay-filter="inventoryTableFilter"></table>
+
+    <script src="layui/layui.js"></script>
+    <script>
+        layui.use(['table'], function () {
+            const table = layui.table;
+
+            table.render({
+                elem: '#inventoryTable',
+                url: 'http://10.0.0.83:5294/api/Inventory/with-materials', // ✅ Adjust the URL according to your actual API
+                method: 'GET',
+                parseData: function (res) {
+                    // If your backend doesn't return standard format like { code: 0, data: [...], count: n }, you can transform it here
+                    return {
+                        code: 0,
+                        msg: "",
+                        count: res.length,
+                        data: res
+                    };
+                },
+                cols: [[
+                    { field: 'materialName', title: 'Item Name', sort: true },
+                    { field: 'unit', title: 'Unit' },
+                    { field: 'perPackageQty', title: 'Qty per Package' },
+                    { field: 'quantity', title: 'Current Stock', sort: true },
+                    {
+                        field: 'updatedAt', title: 'Last Updated', templet: function (d) {
+                            return new Date(d.updatedAt).toLocaleString();
+                        }
+                    }
+                ]],
+                page: false
+            });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Manual Inventory Adjustment</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <style>
+        body {
+            padding: 30px;
+            font-family: Arial, sans-serif;
+        }
+
+        .layui-form-item .layui-input-block button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="layui-header" style="background-color: #3A3F51; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <div class="layui-logo" style="padding-left: 20px; padding-top: 10px;">
+        <img src="images/shamrocklogo.png" alt="Inventory Logo" style="height: 40px;">
+    </div>
+    <ul class="layui-nav layui-layout-left" style="background-color: transparent;">
+        <li class="layui-nav-item"><a style="color: white;" href="scan-page.html">Scan</a></li>
+        <li class="layui-nav-item"><a style="color: white;" href="adjustment.html">Adjust</a></li>
+        <li class="layui-nav-item"><a style="color: white;" href="inventory.html">View Inventory</a></li>
+    </ul>
+</div>
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>Manual Inventory Adjustment</legend>
+    </fieldset>
+
+    <form class="layui-form" id="adjustForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">Item</label>
+            <div class="layui-input-block">
+                <select name="materialId" id="materialSelect" lay-verify="required">
+                    <option value="">Please select an item</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">New Quantity</label>
+            <div class="layui-input-block">
+                <input type="number" name="newQuantity" required lay-verify="required" placeholder="Enter new quantity"
+                    class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">Reason</label>
+            <div class="layui-input-block">
+                <input type="text" name="reason" placeholder="e.g. Inventory check, correction of input error"
+                    class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">Remarks</label>
+            <div class="layui-input-block">
+                <textarea name="remark" placeholder="Additional notes (optional)" class="layui-textarea"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="submitAdjust">Submit Adjustment</button>
+            </div>
+        </div>
+    </form>
+
+    <script src="layui/layui.js"></script>
+    <script>
+        const apiBase = "http://10.0.0.83:5294"; // Update to match your backend API port
+
+        layui.use(['form', 'layer'], function () {
+            const form = layui.form;
+            const layer = layui.layer;
+
+            // Load item list
+            fetch(`${apiBase}/api/Materials`)
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById("materialSelect");
+                    data.forEach(m => {
+                        const option = document.createElement("option");
+                        option.value = m.id;
+                        option.text = m.name;
+                        select.appendChild(option);
+                    });
+                    form.render('select');
+                });
+
+            // Submit event
+            form.on('submit(submitAdjust)', function (data) {
+                const fields = data.field;
+
+                // Optionally get the current quantity
+                fetch(`${apiBase}/api/Inventory`)
+                    .then(res => res.json())
+                    .then(inventoryList => {
+                        const item = inventoryList.find(i => i.materialId == fields.materialId);
+                        const oldQty = item ? item.quantity : 0;
+
+                        const adjustment = {
+                            materialId: parseFloat(fields.materialId),
+                            oldQuantity: oldQty,
+                            newQuantity: parseFloat(fields.newQuantity),
+                            reason: fields.reason || "",
+                            operator: "Admin", // You can dynamically set this based on login info
+                            remark: fields.remark || "",
+                            adjustedAt: new Date().toISOString()
+                        };
+
+                        return fetch(`${apiBase}/api/Adjustments`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(adjustment)
+                        });
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Submission failed");
+                        layer.msg("Inventory adjusted successfully", { icon: 1 });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        layer.alert("Inventory adjustment failed", { icon: 2 });
+                    });
+
+                return false;
+            });
+        });
+    </script>
+
+</body>
+
+</html>
