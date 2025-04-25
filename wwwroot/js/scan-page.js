@@ -111,7 +111,7 @@ window.addEventListener('load', function () {
       </div>
       <div class="layui-form-item">
         <div class="layui-input-block">
-          <button class="layui-btn" lay-submit lay-filter="submitMaterial">提交</button>
+          <button class="layui-btn" lay-submit lay-filter="submitMaterial">submit</button>
         </div>
       </div>
     </form>
